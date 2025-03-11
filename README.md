@@ -4,8 +4,8 @@ Long Peng<sup>1,3</sup>†, Anran Wu<sup>1,2</sup>†, Wenbo Li<sup>3</sup>*, Pe
 
 > <sup>1</sup>USTC, <sup>2</sup>AHU, <sup>3</sup>Huawei Noah’s Ark Lab, <sup>4</sup>Chang’an University, <sup>5</sup>HKUST, <sup>6</sup>THU. 
 
-[[Arxiv Paper](...)]&nbsp;
-[[Website Page](...)]&nbsp;
+[[Arxiv Paper](https://arxiv.org/pdf/2503.06617)]&nbsp;
+[[Website Page](https://github.com/peylnog/ContinuousSR)]&nbsp;
 [[Google Drive](...)]&nbsp;
 [[Colab Notebook](...)]&nbsp;
 

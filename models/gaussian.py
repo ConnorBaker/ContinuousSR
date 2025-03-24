@@ -133,13 +133,7 @@ def get_coord(width, height):
 class ContinuousGaussian(nn.Module):
     """A module that applies 2D Gaussian splatting to input features."""
     def __init__(self, encoder_spec, cnn_spec, fc_spec, **kwargs):
-        """
-        Initialize the 2D Gaussian Splatter module.
-        Args:
-            kernel_size (int): The size of the kernel to convert rasterization.
-            unfold_row (int): The number of points in the row dimension of the Gaussian grid.
-            unfold_column (int): The number of points in the column dimension of the Gaussian grid.
-        """
+        
         super(ContinuousGaussian, self).__init__()
         self.encoder = models.make(encoder_spec)
         
@@ -185,11 +179,18 @@ class ContinuousGaussian(nn.Module):
     def query_output(self,inp,scale):
         
         feat = self.feat
-        scale = float(scale[0])
+        # scale = float(scale[0])
+        if scale.shape==(1,2):
+            scale1 = float(scale[0,0])
+            scale2 = float(scale[0,1])
+        else:
+            scale1 = float(scale[0])
+            scale2 = float(scale[0])
+            
         lr_h = self.inp.shape[-2]
         lr_w = self.inp.shape[-1]
-        H = round(int(self.inp.shape[-2]) * scale)
-        W = round(int(self.inp.shape[-1]) * scale)
+        H = round(int(self.inp.shape[-2]) * scale1)
+        W = round(int(self.inp.shape[-1]) * scale2)
         self.tile_bounds = (
             (W + self.BLOCK_W - 1) // self.BLOCK_W,
             (H + self.BLOCK_H - 1) // self.BLOCK_H,
@@ -247,9 +248,13 @@ class ContinuousGaussian(nn.Module):
             
             weighted_cholesky = para_/4
             weighted_opacity = torch.ones(color_.shape[0], 1).cuda()
+
+            weighted_cholesky[:,0] = weighted_cholesky[:,0]*scale2
+            weighted_cholesky[:,1] = weighted_cholesky[:,1]*scale2
+            weighted_cholesky[:,2] = weighted_cholesky[:,2]*scale1
             
             xys, depths, radii, conics, num_tiles_hit = project_gaussians_2d(get_xyz, \
-                        weighted_cholesky*scale, H, W, self.tile_bounds)
+                        weighted_cholesky, H, W, self.tile_bounds)
             out_img = rasterize_gaussians_sum(xys, depths, radii, conics, num_tiles_hit,
                     color_, weighted_opacity, H, W, self.BLOCK_H, self.BLOCK_W, background=self.background, return_alpha=False)
             

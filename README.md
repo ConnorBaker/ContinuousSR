@@ -60,3 +60,16 @@ Any commercial use should get formal permission first.
 
 ## Acknowledgement
 This repository is maintained by [Long Peng](https://peylnog.github.io/) and [Anran Wu](https://github.com/wuanran678).
+
+### Citation
+
+If you are interested in the following work, please cite the following paper.
+
+```
+@article{peng2025pixel,
+  title={Pixel to Gaussian: Ultra-Fast Continuous Super-Resolution with 2D Gaussian Modeling},
+  author={Peng, Long and Wu, Anran and Li, Wenbo and Xia, Peizhe and Dai, Xueyuan and Zhang, Xinjie and Di, Xin and Sun, Haoze and Pei, Renjing and Wang, Yang and others},
+  journal={arXiv preprint arXiv:2503.06617},
+  year={2025}
+}
+```

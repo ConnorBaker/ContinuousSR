@@ -41,8 +41,7 @@ pip install -e .[dev]
 ### Demo
 Here is an Demo
 ```bash
-# test Set5 X4
-python demo.py --config ./configs/test/test-set5-4.yaml --model ContinuousSR.pth
+python demo.py --input butterflyx4.png --model ContinuousSR.pth --scale 4,4 --output output.png
 ```
 ### Inference
 Here is an example command for inference

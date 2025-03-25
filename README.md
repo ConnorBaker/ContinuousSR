@@ -11,11 +11,11 @@ Long Peng<sup>1,3</sup>†, Anran Wu<sup>1,2</sup>†, Wenbo Li<sup>3</sup>*, Pe
 
 ## :rocket:  :rocket:  :rocket: **News**
 - [x]  **Arxiv Version has been released.**
-- [x]  **Test code has been released.** 
+- [x]  **Test code has been released.**
+- [x]  **Pretrained model has been released.**
 - [x]  Since this paper is completed within the company, the related code and pre-trained models cannot be released. To support the open-source community, we voluntarily and freely attempt to reproduce it in this repository. The reproduced results may have very slight deviations, but the difference stays within 0.05 dB.
 
 ## TODO
-- [ ] Release pre-train model.
 - [ ] Release train code.
 
 ## Framework
@@ -38,9 +38,13 @@ pip install -e .[dev]
 ```
 
 ## Get Started
+### Pretrained model
+The pretrained model can be downloaded from [pretrained model](https://drive.google.com/file/d/1UKXch2ryl6zZWs9QCgtfWpgVwtYLsxtS/view?usp=drive_link). After downloading, place the model in the designated folder, and you can then proceed with the following demo and inference operations.
+
 ### Demo
 Here is an Demo
 ```bash
+# scale represents the magnification factors for height and width respectively
 python demo.py --input butterflyx4.png --model ContinuousSR.pth --scale 4,4 --output output.png
 ```
 ### Inference

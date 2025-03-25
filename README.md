@@ -6,31 +6,31 @@ Long Peng<sup>1,3</sup>†, Anran Wu<sup>1,2</sup>†, Wenbo Li<sup>3</sup>*, Pe
 
 [[Arxiv Paper](https://arxiv.org/pdf/2503.06617)]&nbsp;
 [[Website Page](https://github.com/peylnog/ContinuousSR)]&nbsp;
-[[Google Drive](...)]&nbsp;
-[[Colab Notebook](...)]&nbsp;
+[[Google Drive](https://drive.google.com/file/d/1UKXch2ryl6zZWs9QCgtfWpgVwtYLsxtS/view?usp=drive_link)]&nbsp;
+
 
 ## :rocket:  :rocket:  :rocket: **News**
 - [x]  **Arxiv Version has been released.**
 - [x]  **Test code has been released.**
-- [x]  **Pretrained model has been released.**
+- [x]  **The pretrained model has been released.**
 - [x]  Since this paper is completed within the company, the related code and pre-trained models cannot be released. To support the open-source community, we voluntarily and freely attempt to reproduce it in this repository. The reproduced results may have very slight deviations, but the difference stays within 0.05 dB.
 
 ## TODO
 - [ ] Release train code.
 
-## Framework
+## Summary
+We introduce **ContinuousSR**, a novel Pixel-to-Gaussian paradigm designed for fast and high-quality arbitrary-scale super-resolution. By explicitly reconstructing 2D continuous HR signals from LR images using Gaussian Splatting, **ContinuousSR** significantly improves both efficiency and performance. Through statistical analysis, we uncover the Deep Gaussian Prior (DGP) and propose a DGP-driven Covariance Weighting mechanism along with an Adaptive Position Drifting strategy. These innovations improve the quality and fidelity of the reconstructed Gaussian fields. Experiments on seven popular benchmarks demonstrate that our method outperforms state-of-the-art methods in both quality and speed, achieving a {19.5×} speed improvement and {0.90dB} PSNR improvement, making it a promising solution for ASSR tasks.
+
+## Motivation and Framework
 ![method](assets/motivation.png)&nbsp;
 Compared to other methods, the proposed ContinuousSR delivers significant improvements in SR quality across all scales, with an impressive 19.5× speedup when continuously upsampling an image across forty scales.
 
-## Summary
-We introduce **ContinuousSR**, a novel Pixel-to-Gaussian paradigm designed for fast and high-quality arbitrary-scale super-resolution. By explicitly reconstructing 2D continuous HR signals from LR images using Gaussian Splatting, **ContinuousSR** significantly improves both efficiency and performance. Through statistical analysis, we uncover the Deep Gaussian Prior (DGP) and propose a DGP-driven Covariance Weighting mechanism along with an Adaptive Position Drifting strategy. These innovations improve the quality and fidelity of the reconstructed Gaussian fields. Experiments on seven popular benchmarks demonstrate that our method outperforms state-of-the-art methods in both quality and speed, achieving a {19.5×} speed improvement and {0.90dB} PSNR improvement, making it a promising solution for ASSR tasks.
 
 ### Dependencies and Installation
 - python=3.9
 - pytorch=1.13
 - basicsr==1.3.4.9
 - Others:
-
 ```bash
 git clone https://github.com/XingtongGe/gsplat.git
 cd gsplat
@@ -39,7 +39,9 @@ pip install -e .[dev]
 
 ## Get Started
 ### Pretrained model
-The pretrained model can be downloaded from [pretrained model](https://drive.google.com/file/d/1UKXch2ryl6zZWs9QCgtfWpgVwtYLsxtS/view?usp=drive_link). After downloading, place the model in the designated folder, and you can then proceed with the following demo and inference operations.
+- After our thorough reproduction process, we are excited to **open-source** the pre-trained model!  
+- The **best-performing version** of our method can be downloaded here:  ➡️ [Pretrained Model](https://drive.google.com/file/d/1UKXch2ryl6zZWs9QCgtfWpgVwtYLsxtS/view?usp=drive_link)  
+- Once downloaded, place the model in the designated folder, and you’ll be ready to run the demo and perform inference. 🚀  
 
 ### Demo
 Here is an Demo

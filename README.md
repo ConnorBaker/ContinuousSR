@@ -7,6 +7,9 @@ Long Peng<sup>1,3</sup>†, Anran Wu<sup>1,2</sup>†, Wenbo Li<sup>3</sup>*, Pe
 [[Arxiv Paper](https://arxiv.org/pdf/2503.06617)]&nbsp;
 [[Website Page](https://peylnog.github.io/ContinuousSR_web/)]&nbsp;
 [[Google Drive](https://drive.google.com/file/d/1UKXch2ryl6zZWs9QCgtfWpgVwtYLsxtS/view?usp=drive_link)]&nbsp;
+[[HuggingFace](https://huggingface.co/pey12/ContinuousSR/tree/main)]&nbsp;
+
+
 
 ## :rocket:  :rocket:  :rocket: **News**
 - [x]  **Arxiv Version has been released.**
@@ -17,15 +20,15 @@ Long Peng<sup>1,3</sup>†, Anran Wu<sup>1,2</sup>†, Wenbo Li<sup>3</sup>*, Pe
 ## TODO
 - [ ] Release train code.
 
-## Summary
+##  💡 Summary
 We introduce **ContinuousSR**, a novel Pixel-to-Gaussian paradigm designed for fast and high-quality arbitrary-scale super-resolution. By explicitly reconstructing 2D continuous HR signals from LR images using Gaussian Splatting, **ContinuousSR** significantly improves both efficiency and performance. Through statistical analysis, we uncover the Deep Gaussian Prior (DGP) and propose a DGP-driven Covariance Weighting mechanism along with an Adaptive Position Drifting strategy. These innovations improve the quality and fidelity of the reconstructed Gaussian fields. Experiments on seven popular benchmarks demonstrate that our method outperforms state-of-the-art methods in both quality and speed, achieving a {19.5×} speed improvement and {0.90dB} PSNR improvement, making it a promising solution for ASSR tasks.
 
-## Motivation and Framework
+## 💡 Motivation and Framework
 ![method](assets/motivation.png)&nbsp;
 Compared to other methods, the proposed ContinuousSR delivers significant improvements in SR quality across all scales, with an impressive 19.5× speedup when continuously upsampling an image across forty scales.
 
 
-### Dependencies and Installation
+### 📃 Dependencies and Installation
 - python=3.9
 - pytorch=1.13
 - basicsr==1.3.4.9
@@ -58,11 +61,11 @@ python test.py --config ./configs/test/test-set5-4.yaml --model ContinuousSR.pth
 ## Visual Examples
 ![method](assets/vis1.png)&nbsp;
 
-## License
+## ✉️ License
 Licensed under a [Creative Commons Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/) for Non-commercial use only.
 Any commercial use should get formal permission first.
 
-## Acknowledgement
+## ✉️ Acknowledgement
 This repository is maintained by [Long Peng](https://peylnog.github.io/) and [Anran Wu](https://github.com/wuanran678).
 
 ### Citation

@@ -7,8 +7,7 @@ Long Peng<sup>1,3</sup>†, Anran Wu<sup>1,2</sup>†, Wenbo Li<sup>3</sup>*, Pe
 [[Arxiv Paper](https://arxiv.org/pdf/2503.06617)]&nbsp;
 [[Website Page](https://peylnog.github.io/ContinuousSR_web/)]&nbsp;
 [[Google Drive](https://drive.google.com/file/d/1UKXch2ryl6zZWs9QCgtfWpgVwtYLsxtS/view?usp=drive_link)]&nbsp;
-[[HuggingFace](https://huggingface.co/pey12/ContinuousSR/tree/main)]&nbsp;
-
+[![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-blue)](https://huggingface.co/jychen9811/FaithDiff)
 
 
 ## :rocket:  :rocket:  :rocket: **News**

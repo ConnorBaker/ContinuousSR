@@ -254,7 +254,7 @@ class ContinuousGaussian(nn.Module):
             weighted_cholesky = para_ / 4
             weighted_opacity = torch.ones(color_.shape[0], 1).cuda()
             weighted_cholesky[:, 0] *= scale2
-            weighted_cholesky[:, 1] *= scale2
+            weighted_cholesky[:, 1] *= scale1
             weighted_cholesky[:, 2] *= scale1
 
             # Perform Gaussian projection and rasterization

@@ -2,7 +2,7 @@ test_dataset:
   dataset:
     name: image-folder
     args:
-      root_path: /data/B100/Set5/HR
+      root_path: /data/Set5/HR
       first_k:
       repeat: 1
       cache: in_memory
@@ -13,6 +13,7 @@ test_dataset:
       scale_max: 4
       scale_min: 4
   batch_size: 1
+eval_type: benchmark-4 
 
 data_norm:
   inp: {sub: [0], div: [1]}

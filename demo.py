@@ -1,19 +1,11 @@
 import argparse
 import os
-import math
-from functools import partial
 
-import yaml
 import torch
-from torchvision import transforms
-from PIL import Image
+from torchvision.transforms.v2.functional import to_dtype
+from torchvision.io import decode_image, write_jpeg
 
-import numpy as np
-import datasets
 import models
-import utils
-from utils import make_coord
-from torchvision.utils import save_image
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -26,7 +18,10 @@ if __name__ == '__main__':
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
-    img = transforms.ToTensor()(Image.open(args.input).convert('RGB')).cuda()
+    img = decode_image(args.input, mode="RGB")
+    _, height, width = img.shape
+    img = to_dtype(img, dtype=torch.float32, scale=True)
+    img = img.cuda()
     
     model_spec = torch.load(args.model)['model']
     model = models.make(model_spec, load_sd=True).cuda()
@@ -37,6 +32,8 @@ if __name__ == '__main__':
     with torch.no_grad():
         pred = model(img.unsqueeze(0), scale).squeeze(0)
         pred = pred.clamp(0,1)
-        
-    transforms.ToPILImage()(pred).save(args.output)
+
+    pred = to_dtype(pred, dtype=torch.uint8, scale=True)
+    pred = pred.cpu() # Didn't compile torchvision with nvJPEG
+    write_jpeg(pred, args.output)
     print("finished!")

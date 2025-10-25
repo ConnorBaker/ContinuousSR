@@ -843,10 +843,10 @@ class HAT(nn.Module):
         relative_position_index = relative_coords.sum(-1)
         return relative_position_index
 
-    def calculate_mask(self, x_size):
+    def calculate_mask(self, x):
         # calculate attention mask for SW-MSA
-        h, w = x_size
-        img_mask = torch.zeros((1, h, w, 1))  # 1 h w 1
+        h, w = (x.shape[2], x.shape[3])
+        img_mask = torch.zeros((1, h, w, 1), device=x.device)  # 1 h w 1
         h_slices = (slice(0, -self.window_size), slice(-self.window_size,
                                                        -self.shift_size), slice(-self.shift_size, None))
         w_slices = (slice(0, -self.window_size), slice(-self.window_size,
@@ -884,7 +884,7 @@ class HAT(nn.Module):
 
         # Calculate attention mask and relative position index in advance to speed up inference. 
         # The original code is very time-consuming for large window size.
-        attn_mask = self.calculate_mask(x_size).to(x.device)
+        attn_mask = self.calculate_mask(x)
         params = {'attn_mask': attn_mask, 'rpi_sa': self.relative_position_index_SA, 'rpi_oca': self.relative_position_index_OCA}
 
         x = self.patch_embed(x)

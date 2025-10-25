@@ -1,44 +1,18 @@
 import math
 import torch
 import torch.nn as nn
-import torch.utils.checkpoint as checkpoint
 
-from basicsr.utils.registry import ARCH_REGISTRY
-from basicsr.archs.arch_util import to_2tuple, trunc_normal_
+from basicsr.archs.arch_util import trunc_normal_
+
+from timm.models.swin_transformer import window_partition, window_reverse
+from timm.layers.drop import DropPath
+from timm.layers.helpers import to_2tuple
+from timm.layers.mlp import Mlp
 
 import torch.nn.functional as F
 
 from einops import rearrange
 from models import register
-
-def drop_path(x, drop_prob: float = 0., training: bool = False):
-    """Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
-
-    From: https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/drop.py
-    """
-    if drop_prob == 0. or not training:
-        return x
-    keep_prob = 1 - drop_prob
-    shape = (x.shape[0], ) + (1, ) * (x.ndim - 1)  # work with diff dim tensors, not just 2D ConvNets
-    random_tensor = keep_prob + torch.rand(shape, dtype=x.dtype, device=x.device)
-    random_tensor.floor_()  # binarize
-    output = x.div(keep_prob) * random_tensor
-    return output
-
-
-class DropPath(nn.Module):
-    """Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks).
-
-    From: https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/drop.py
-    """
-
-    def __init__(self, drop_prob=None):
-        super(DropPath, self).__init__()
-        self.drop_prob = drop_prob
-
-    def forward(self, x):
-        return drop_path(x, self.drop_prob, self.training)
-
 
 class ChannelAttention(nn.Module):
     """Channel attention used in RCAN.
@@ -75,58 +49,6 @@ class CAB(nn.Module):
 
     def forward(self, x):
         return self.cab(x)
-
-
-class Mlp(nn.Module):
-
-    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
-        super().__init__()
-        out_features = out_features or in_features
-        hidden_features = hidden_features or in_features
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        self.act = act_layer()
-        self.fc2 = nn.Linear(hidden_features, out_features)
-        self.drop = nn.Dropout(drop)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.act(x)
-        x = self.drop(x)
-        x = self.fc2(x)
-        x = self.drop(x)
-        return x
-
-
-def window_partition(x, window_size):
-    """
-    Args:
-        x: (b, h, w, c)
-        window_size (int): window size
-
-    Returns:
-        windows: (num_windows*b, window_size, window_size, c)
-    """
-    b, h, w, c = x.shape
-    x = x.view(b, h // window_size, window_size, w // window_size, window_size, c)
-    windows = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, c)
-    return windows
-
-
-def window_reverse(windows, window_size, h, w):
-    """
-    Args:
-        windows: (num_windows*b, window_size, window_size, c)
-        window_size (int): Window size
-        h (int): Height of image
-        w (int): Width of image
-
-    Returns:
-        x: (b, h, w, c)
-    """
-    b = int(windows.shape[0] / (h * w / window_size / window_size))
-    x = windows.view(b, h // window_size, w // window_size, window_size, window_size, -1)
-    x = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(b, h, w, -1)
-    return x
 
 
 class WindowAttention(nn.Module):
@@ -288,7 +210,7 @@ class HAB(nn.Module):
             attn_mask = None
 
         # partition windows
-        x_windows = window_partition(shifted_x, self.window_size)  # nw*b, window_size, window_size, c
+        x_windows = window_partition(shifted_x, to_2tuple(self.window_size))  # nw*b, window_size, window_size, c
         x_windows = x_windows.view(-1, self.window_size * self.window_size, c)  # nw*b, window_size*window_size, c
 
         # W-MSA/SW-MSA (to be compatible for testing on images whose shapes are the multiple of window size
@@ -296,7 +218,7 @@ class HAB(nn.Module):
 
         # merge windows
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, c)
-        shifted_x = window_reverse(attn_windows, self.window_size, h, w)  # b h' w' c
+        shifted_x = window_reverse(attn_windows, to_2tuple(self.window_size), h, w)  # b h' w' c
 
         # reverse cyclic shift
         if self.shift_size > 0:
@@ -405,7 +327,7 @@ class OCAB(nn.Module):
         kv = torch.cat((qkv[1], qkv[2]), dim=1) # b, 2*c, h, w
 
         # partition windows
-        q_windows = window_partition(q, self.window_size)  # nw*b, window_size, window_size, c
+        q_windows = window_partition(q, to_2tuple(self.window_size))  # nw*b, window_size, window_size, c
         q_windows = q_windows.view(-1, self.window_size * self.window_size, c)  # nw*b, window_size*window_size, c
 
         kv_windows = self.unfold(kv) # b, c*w*w, nw
@@ -432,7 +354,7 @@ class OCAB(nn.Module):
 
         # merge windows
         attn_windows = attn_windows.view(-1, self.window_size, self.window_size, self.dim)
-        x = window_reverse(attn_windows, self.window_size, h, w)  # b h w c
+        x = window_reverse(attn_windows, to_2tuple(self.window_size), h, w)  # b h w c
         x = x.view(b, h * w, self.dim)
 
         x = self.proj(x) + shortcut
@@ -708,7 +630,6 @@ class Upsample(nn.Sequential):
             raise ValueError(f'scale {scale} is not supported. ' 'Supported scales: 2^n and 3.')
         super(Upsample, self).__init__(*m)
 
-
 @register('hat')
 class HAT(nn.Module):
     r""" Hybrid Attention Transformer
@@ -936,7 +857,7 @@ class HAT(nn.Module):
                 img_mask[:, h, w, :] = cnt
                 cnt += 1
 
-        mask_windows = window_partition(img_mask, self.window_size)  # nw, window_size, window_size, 1
+        mask_windows = window_partition(img_mask, to_2tuple(self.window_size))  # nw, window_size, window_size, 1
         mask_windows = mask_windows.view(-1, self.window_size * self.window_size)
         attn_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
         attn_mask = attn_mask.masked_fill(attn_mask != 0, float(-100.0)).masked_fill(attn_mask == 0, float(0.0))

@@ -224,11 +224,11 @@ class ContinuousGaussian(nn.Module):
         # Process features for Gaussian convariance parameter estimation
         para_c = self.leaky_relu(self.feat)
         para = self.conv1(para_c)
-        vector = self.mlp_vector(self.gau_dict.to(para.device)) # Transform Gaussian covariance dictionary to increase dimensions
+        vector = self.mlp_vector(self.gau_dict.to(device=para.device, dtype=para.dtype)) # Transform Gaussian covariance dictionary to increase dimensions
         para = para.reshape(bs, -1, lr_h * lr_w * 4).permute(1, 0, 2).reshape(-1, bs * lr_h * lr_w * 4)
         para = vector @ para  # This calculates the similarity between para and each element in the dictionary
         para = torch.softmax(para, dim=0)  # Normalize the similarity scores to produce weights using softmax
-        para = para.permute(1, 0) @ self.gau_dict.to(para.device) # Compute the weighted sum of dictionary elements to get the final covariance
+        para = para.permute(1, 0) @ self.gau_dict.to(device=para.device, dtype=para.dtype) # Compute the weighted sum of dictionary elements to get the final covariance
         para = para.reshape(bs, lr_h * lr_w * 4, -1)
 
         # Process features for offset prediction
@@ -242,7 +242,7 @@ class ContinuousGaussian(nn.Module):
             para_ = para[i, :, :].squeeze(0)
 
             # Generate coordinate grid for the high-resolution image
-            get_xyz = torch.tensor(get_coord(lr_h * 2, lr_w * 2)).reshape(lr_h * 2, lr_w * 2, 2).cuda()
+            get_xyz = get_coord(lr_h * 2, lr_w * 2).reshape(lr_h * 2, lr_w * 2, 2).cuda()
             get_xyz = get_xyz.reshape(-1, 2)
 
             # Adjust coordinates using offsets
@@ -258,19 +258,21 @@ class ContinuousGaussian(nn.Module):
             weighted_cholesky[:, 2] *= scale1
 
             # Perform Gaussian projection and rasterization
+            # NOTE(@connorbaker): The code is built for float32 specifically, so we need to convert arguments before
+            # passing them; we also need to convert the result aftewards.
             xys, depths, radii, conics, num_tiles_hit = project_gaussians_2d(
-                get_xyz, weighted_cholesky, H, W, self.tile_bounds
+                get_xyz.to(torch.float32), weighted_cholesky.to(torch.float32), H, W, self.tile_bounds
             )
             out_img = rasterize_gaussians_sum(
-                xys, depths, radii, conics, num_tiles_hit, color_, weighted_opacity,
-                H, W, self.BLOCK_H, self.BLOCK_W, background=self.background, return_alpha=False
-            )
+                xys, depths, radii, conics, num_tiles_hit, color_.to(torch.float32), weighted_opacity.to(torch.float32),
+                H, W, self.BLOCK_H, self.BLOCK_W, background=self.background.to(torch.float32), return_alpha=False
+            ).to(inp.dtype)
             out_img = out_img.permute(2, 0, 1).unsqueeze(0)
             pred.append(out_img)
 
         # Combine outputs for the batch
         out_img = torch.cat(pred)
-        return out_img
+        return out_img.to(dtype=inp.dtype)
 
     def forward(self, inp, scale):
         """

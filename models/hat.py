@@ -846,7 +846,7 @@ class HAT(nn.Module):
     def calculate_mask(self, x):
         # calculate attention mask for SW-MSA
         h, w = (x.shape[2], x.shape[3])
-        img_mask = torch.zeros((1, h, w, 1), device=x.device)  # 1 h w 1
+        img_mask = torch.zeros((1, h, w, 1), device=x.device, dtype=x.dtype)  # 1 h w 1
         h_slices = (slice(0, -self.window_size), slice(-self.window_size,
                                                        -self.shift_size), slice(-self.shift_size, None))
         w_slices = (slice(0, -self.window_size), slice(-self.window_size,
